@@ -2,6 +2,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement, Default, BelongsToMany } from 'sequelize-typescript';
 
+import { Role } from 'src/roles/entities/role.model';
+import { UserRoleAssignment } from 'src/roles/entities/user_role.model';
+
 @Table({ tableName: 'users', timestamps: true, paranoid: true })
 export class User extends Model<User> {
     

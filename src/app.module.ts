@@ -5,11 +5,16 @@ import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
-import { TenantsModule } from './tenants/tenants.module';
+import { SeedModule } from './seed/seed.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [DatabaseModule, UsersModule, RolesModule, AuthModule, TenantsModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    DatabaseModule, UsersModule, RolesModule, AuthModule, SeedModule],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

@@ -16,7 +16,7 @@ export class Role extends Model<Role> {
   id: number;
 
   @Column({ type: DataType.ENUM(...Object.values(UserRole)), allowNull: false, unique: true})
-  name: UserRole;
+  rol: UserRole;
 
   @BelongsToMany(() => User, () => UserRoleAssignment)
   users: User[];

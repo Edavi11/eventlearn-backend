@@ -1,15 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Sequelize } from 'sequelize-typescript';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: '*', // Permite todas las solicitudes CORS
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Métodos permitidos
-    allowedHeaders: 'Content-Type, Authorization', // Encabezados permitidos
+    origin: '*', 
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', 
+    allowedHeaders: 'Content-Type, Authorization', 
   });
+
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true, 
+    transform: true,
+  }));
 
   await app.listen(3000);
 }

@@ -24,7 +24,7 @@ import { UserRoleAssignment } from 'src/roles/entities/user_role.model';
           synchronize: true,
           logging: console.log, // Enable logging of SQL queries
           models: [User, Role, UserRoleAssignment], // ✅ Aquí deben estar todos
-          sync: isDev ? { force: true } : { force: false }, // Force sync in development mode
+          // sync: isDev ? { force: true } : { force: false }, // Force sync in development mode
         }
 
       },

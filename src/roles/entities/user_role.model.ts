@@ -1,4 +1,4 @@
-import { Table, Model, Column, ForeignKey, DataType } from 'sequelize-typescript';
+import { Table, Model, Column, ForeignKey, DataType, Default } from 'sequelize-typescript';
 
 import { User } from '../../users/entities/user.model';
 import { Role } from './role.model';
@@ -10,6 +10,17 @@ import { Role } from './role.model';
 })
 export class UserRoleAssignment extends Model<UserRoleAssignment> {
 
+  @Column({
+    type: DataType.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  })
+  id: number;
+
+  @Default(DataType.UUIDV4)
+  @Column({ type: DataType.UUID, allowNull: false, unique: true })
+  code: string;
+
   @ForeignKey(() => User)
   @Column(DataType.INTEGER)
   user_id: number;
@@ -17,5 +28,4 @@ export class UserRoleAssignment extends Model<UserRoleAssignment> {
   @ForeignKey(() => Role)
   @Column(DataType.INTEGER)
   role_id: number;
-  
 }

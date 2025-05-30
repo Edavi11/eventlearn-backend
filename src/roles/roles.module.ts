@@ -1,9 +1,29 @@
+// src/roles/roles.module.ts
 import { Module } from '@nestjs/common';
-import { RolesService } from './roles.service';
-import { RolesController } from './roles.controller';
+import { SequelizeModule } from '@nestjs/sequelize';
+
+// Models
+import { Role } from './entities/role.model';
+import { UserRoleAssignment } from './entities/user_role.model'; 
+
+// Repositories
+import { RolesService } from './roles.service'; 
+import { RolesRepository } from './repository/roles.repository'; 
+import { UserRolesRepository } from './repository/user_roles.repository'; 
 
 @Module({
-  controllers: [RolesController],
-  providers: [RolesService],
+  imports: [
+    SequelizeModule.forFeature([Role, UserRoleAssignment]), 
+  ],
+  providers: [
+    RolesService, 
+    RolesRepository,
+    UserRolesRepository,
+  ],
+  exports: [
+    RolesService, 
+    RolesRepository, 
+    UserRolesRepository,
+  ],
 })
 export class RolesModule {}

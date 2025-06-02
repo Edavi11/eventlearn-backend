@@ -10,6 +10,7 @@ import { PassportModule } from '@nestjs/passport';
 import { RolesModule } from 'src/roles/roles.module';
 import { UsersModule } from '../users/users.module'; // Necesitamos acceder al User model/service
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { OtpModule } from 'src/otp/otp.module';
 
 @Module({
   exports: [AuthService, JwtModule, PassportModule],
@@ -27,6 +28,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       }),
       inject: [ConfigService],
     }),
+    OtpModule,
     ConfigModule
   ]
 })

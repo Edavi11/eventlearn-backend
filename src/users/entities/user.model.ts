@@ -38,6 +38,9 @@ export class User extends Model<User> {
   @Column({ type: DataType.BOOLEAN, allowNull: false })
   is_active: boolean;
 
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  is_verified: boolean;
+
   @BelongsToMany(() => Role, () => UserRoleAssignment)
   roles: Role[];
   

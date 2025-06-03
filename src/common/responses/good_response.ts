@@ -1,0 +1,75 @@
+import { HttpStatus } from "@nestjs/common";
+import { ResponseModule } from "../enums/response_module.enum";
+import { ApiResponse } from "./structure/api-response.dto";
+import { ResponseFactory } from "./structure/response.factory";
+
+export class GoodResponse {
+
+    static readonly SUCCESSFUL_OPERATION = ResponseFactory.createSuccessResponse(
+        HttpStatus.OK,
+        'Operation successful.',
+        ResponseModule.GENERAL
+    );
+
+
+    static readonly SUCCESSFUL_CONNECTION = ResponseFactory.createSuccessResponse(
+        HttpStatus.OK,
+        'Connection successfully established.',
+        ResponseModule.GENERAL
+    );
+
+    static readonly SUCCESSFUL_GET = ResponseFactory.createSuccessResponse(
+        HttpStatus.OK,
+        'Data successfully obtained.',
+        ResponseModule.GENERAL
+    );
+
+    static readonly SUCCESSFUL_CREATION = ResponseFactory.createSuccessResponse(
+        HttpStatus.CREATED,
+        'Data successfully created.',
+        ResponseModule.GENERAL
+    );
+
+    static readonly SUCCESSFUL_UPDATE = ResponseFactory.createSuccessResponse(
+        HttpStatus.OK,
+        'Data successfully updated.',
+        ResponseModule.GENERAL
+    );
+
+    static readonly SUCCESSFUL_DELETION = ResponseFactory.createSuccessResponse(
+        HttpStatus.OK,
+        'Data successfully deleted.',
+        ResponseModule.GENERAL
+    );
+
+    // Auth Specific Success
+    static readonly USER_CREATED_OTP_SENT = ResponseFactory.createSuccessResponse(
+        HttpStatus.CREATED,
+        'Registration successful! Please check your email for the OTP verification code.',
+        ResponseModule.AUTH
+    );
+
+    static readonly USER_UNVERIFIED_OTP_RESENT = ResponseFactory.createSuccessResponse(
+        HttpStatus.OK,
+        'User already exists but not verified. A new OTP has been sent to your email.',
+        ResponseModule.AUTH
+    );
+
+    static SIGNIN_SUCCESS(accessToken: string): ApiResponse<any> {
+        return ResponseFactory.createSuccessResponseWithData(
+            HttpStatus.OK,
+            'Login successful.',
+            ResponseModule.AUTH,
+            accessToken ,
+        );
+    }
+
+    static OTP_VERIFIED_SUCCESS(accessToken: string): ApiResponse<any> {
+        return ResponseFactory.createSuccessResponseWithData(
+            HttpStatus.OK,
+            'Email verification successful!',
+            ResponseModule.AUTH,
+            accessToken
+        );
+    }
+}

@@ -11,13 +11,14 @@ import { ConfigModule } from '@nestjs/config';
 import { OtpModule } from './otp/otp.module';
 import { EmailModule } from './email/email.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
+import { MetricsModule } from './metricts/metricts.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    DatabaseModule, UsersModule, RolesModule, AuthModule, SeedModule, OtpModule, EmailModule, SchedulerModule],
+    DatabaseModule, UsersModule, RolesModule, AuthModule, SeedModule, OtpModule, EmailModule, SchedulerModule, MetricsModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -4,6 +4,6 @@ import { ApiErrorResponse } from 'src/common/responses/structure/api-response.dt
 
 export class ApiException extends HttpException {
   constructor(errorResponse: ApiErrorResponse<any>) {
-    super(errorResponse, errorResponse.statusCode);
+    super({...errorResponse}, errorResponse.statusCode);
   }
 }

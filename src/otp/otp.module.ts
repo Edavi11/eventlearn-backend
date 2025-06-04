@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 
-import { OtpCode } from './otp_code.model';
+import { OtpCode } from './entities/otp_code.model';
 
 import { OtpCodesRepository } from './repository/otp_codes.repository';
 import { OtpService } from './otp.service';

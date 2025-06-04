@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 
 // Guards
-import { ROLES_KEY } from '../decorators/roles.decorator'; // Importa la clave del decorador
+import { ROLES_KEY } from 'src/common/decorators/roles.decorator';
 
 // Enums
 import { UserRole } from '../../common/enums/user.role'; // Tu enum de roles

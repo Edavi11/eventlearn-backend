@@ -20,9 +20,9 @@ export class SeedService {
     }
 
     await Role.bulkCreate([
-      { rol: UserRole.Student },
-      { rol: UserRole.Instructor },
-      { rol: UserRole.Admin },
+      { rol: UserRole.STUDENT },
+      { rol: UserRole.INSTRUCTOR },
+      { rol: UserRole.ADMIN },
     ]);
 
     console.log('✅ Roles insertados.');

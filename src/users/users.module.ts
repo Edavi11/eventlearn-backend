@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './entities/user.model';
@@ -11,8 +10,8 @@ import { UsersRepository } from './repository/users.repository';
   imports: [
     SequelizeModule.forFeature([User, Role, UserRoleAssignment]), // Provee el modelo User para la inyección
   ],
-  providers: [UsersService, UsersRepository], // <--- Ahora provees el UsersRepository
-  exports: [UsersService, UsersRepository], // <--- Exporta UsersService Y UsersRepository
+  providers: [UsersRepository], // <--- Ahora provees el UsersRepository
+  exports: [UsersRepository], // <--- Exporta UsersService Y UsersRepository
 })
 
 

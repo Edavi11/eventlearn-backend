@@ -30,6 +30,12 @@ export class BadResponse {
         ResponseModule.GENERAL
     );
 
+    static readonly INVALID_OTP = ResponseFactory.createErrorResponse(
+        HttpStatus.NOT_FOUND,
+        'The provided OTP is invalid or has expired.',
+        ResponseModule.AUTH
+    );
+
     static FUNC_ENTITY_NOT_FOUND(entity: Entities): ApiErrorResponse<any> {
         return ResponseFactory.createErrorResponse(
             HttpStatus.NOT_FOUND,
@@ -37,13 +43,13 @@ export class BadResponse {
             ResponseModule.GENERAL,
         );
     }
-    
+
     static readonly ASSOCIATED_ENTITY_NOT_FOUND = ResponseFactory.createErrorResponse(
         HttpStatus.NOT_FOUND,
         'Some associated entity is not valid.',
         ResponseModule.GENERAL
     );
-    
+
     static FUNC_ASSOCIATED_ENTITY_NOT_FOUND(entity: Entities): ApiErrorResponse<any> {
         return ResponseFactory.createErrorResponse(
             HttpStatus.NOT_FOUND,
@@ -79,6 +85,18 @@ export class BadResponse {
     static readonly USER_PASSWORD_IS_INVALID = ResponseFactory.createErrorResponse(
         HttpStatus.BAD_REQUEST,
         'The provided password is invalid.',
+        ResponseModule.AUTH
+    );
+    
+    static readonly OTP_EMAIL_SEND_FAILED = ResponseFactory.createErrorResponse(
+        HttpStatus.BAD_REQUEST,
+        'Failed to send OTP email. Please try again later.',
+        ResponseModule.AUTH
+    );
+
+    static readonly USER_CREATION_FAILED = ResponseFactory.createErrorResponse(
+        HttpStatus.BAD_REQUEST,
+        'User creation failed. Please check the provided data.',
         ResponseModule.AUTH
     );
 }

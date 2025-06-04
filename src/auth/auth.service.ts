@@ -3,7 +3,7 @@ import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 
 // NestJS
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
 // DTOs
 import { LoginUserDto } from './dto/login-auth.dto';
@@ -26,6 +26,7 @@ import { ApiResponse } from 'src/common/responses/structure/api-response.dto';
 import { ApiException } from './exceptions/api.exception';
 import { Entities } from 'src/common/enums/entities';
 
+
 @Injectable()
 export class AuthService {
 
@@ -40,44 +41,55 @@ export class AuthService {
   ) { }
 
   async signUp(createAuthDto: CreateAuthDto): Promise<ApiResponse> {
-    const { email, password, first_name, last_name, role } = createAuthDto;
 
-    let user = await this.usersRepository.findByEmail(email);
+    try {
+      const { email, password, first_name, last_name, role } = createAuthDto;
 
-    if (user) {
-      if (user.is_verified) {
-        throw new ApiException(BadResponse.USER_ALREADY_EXISTS);
-      } else {
-        this.logger.warn(`Attempt to register unverified email ${email}. Delegating OTP re-send.`);
-        await this.otpService.sendOtp(user, OtpPurpose.REGISTRATION);
-        return GoodResponse.USER_UNVERIFIED_OTP_RESENT;
+      let user = await this.usersRepository.findByEmail(email);
+
+      if (user) {
+        if (user.is_verified) {
+          throw new ApiException(BadResponse.USER_ALREADY_EXISTS);
+        } else {
+          this.logger.warn(`Attempt to register unverified email ${email}. Delegating OTP re-send.`);
+          await this.otpService.sendOtp(user, OtpPurpose.REGISTRATION);
+          return GoodResponse.USER_UNVERIFIED_OTP_RESENT;
+        }
       }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      user = await this.usersRepository.create({
+        email,
+        password: hashedPassword,
+        name: `${first_name} ${last_name}`,
+        is_verified: false,
+        is_active: true,
+      });
+
+      const assignedRole = await this.rolesRepository.findByRol(role);
+      if (!assignedRole) {
+        this.logger.error(`Role '${role}' not found in database. Please ensure seed is run.`);
+        throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.ROLE));
+      }
+
+      await this.UserRolesRepository.create({
+        user_id: user.id,
+        role_id: assignedRole.id,
+      });
+
+      await this.otpService.sendOtp(user, OtpPurpose.REGISTRATION);
+
+      return GoodResponse.USER_CREATED_OTP_SENT;
+    } catch (error) {
+      this.logger.error(`Error during user registration: ${error.message}`, error.stack);
+      if (error instanceof ApiException) {
+        throw error; // Re-throw known API exceptions
+      }
+      
+      throw new BadRequestException(BadResponse.USER_CREATION_FAILED);
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    user = await this.usersRepository.create({
-      email,
-      password: hashedPassword,
-      name: `${first_name} ${last_name}`,
-      is_verified: false,
-      is_active: true,
-    });
-
-    const assignedRole = await this.rolesRepository.findByRol(role);
-    if (!assignedRole) {
-      this.logger.error(`Role '${role}' not found in database. Please ensure seed is run.`);
-      throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.Role));
-    }
-
-    await this.UserRolesRepository.create({
-      user_id: user.id,
-      role_id: assignedRole.id,
-    });
-
-    await this.otpService.sendOtp(user, OtpPurpose.REGISTRATION);
-
-    return GoodResponse.USER_CREATED_OTP_SENT;
   }
 
   async signIn(loginUserDto: LoginUserDto): Promise<ApiResponse<any>> {
@@ -104,7 +116,7 @@ export class AuthService {
 
     const userWithRoles = await this.usersRepository.findById(user.id);
     if (!userWithRoles) {
-      throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.User));
+      throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.USER));
     }
 
     const payload = {
@@ -122,21 +134,17 @@ export class AuthService {
 
     const user = await this.usersRepository.findByEmail(email);
     if (!user) {
-      throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.User));
+      throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.USER));
     }
 
-    const result = await this.otpService.verifyOtp(user.id, otp_code, OtpPurpose.REGISTRATION);
-
-    if (!result.is_verified) {
-      throw new ApiException(BadResponse.USER_NOT_VERIFY);
-    }
+    await this.otpService.verifyOtp(user.id, otp_code, OtpPurpose.REGISTRATION);
 
     user.is_verified = true;
     await user.save();
 
     const userWithRoles = await this.usersRepository.findById(user.id);
     if (!userWithRoles) {
-      throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.User));
+      throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.USER));
     }
 
     const payload = {

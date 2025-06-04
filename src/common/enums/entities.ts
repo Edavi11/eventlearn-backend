@@ -1,6 +1,6 @@
 export const enum Entities {
-    User = 'User',
-    Role = 'Role',
-    UserRole = 'UserRole',
-    Otp = 'Otp',
+    USER = 'User',
+    ROLE = 'Role',
+    USER_ROLE = 'UserRole',
+    OTP = 'Otp',
 }

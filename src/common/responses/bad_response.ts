@@ -111,4 +111,16 @@ export class BadResponse {
         'You are not authorized to reset the password.',
         ResponseModule.AUTH
     );
+
+    static readonly INTEREST_NOT_FOUND = ResponseFactory.createErrorResponse(
+        HttpStatus.BAD_REQUEST,
+        'The specified interest does not exist.',
+        ResponseModule.GENERAL
+    );
+    
+    static readonly INTEREST_ALREADY_EXISTS = ResponseFactory.createErrorResponse(
+        HttpStatus.BAD_REQUEST,
+        'The specified interest already exists.',
+        ResponseModule.GENERAL
+    );
 }

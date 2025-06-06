@@ -12,13 +12,15 @@ import { OtpModule } from './otp/otp.module';
 import { EmailModule } from './email/email.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
 import { MetricsModule } from './metricts/metricts.module';
+import { ProfileModule } from './profile/profile.module';
+import { InterestModule } from './interest/interests.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    DatabaseModule, UsersModule, RolesModule, AuthModule, SeedModule, OtpModule, EmailModule, SchedulerModule, MetricsModule],
+    DatabaseModule, UsersModule, RolesModule, AuthModule, SeedModule, OtpModule, EmailModule, SchedulerModule, MetricsModule, ProfileModule, InterestModule],
   controllers: [AppController],
   providers: [AppService],
 })

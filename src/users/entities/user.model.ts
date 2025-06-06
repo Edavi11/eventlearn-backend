@@ -41,6 +41,9 @@ export class User extends Model<User> {
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   is_verified: boolean;
 
+  @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
+  can_reset_password : boolean;
+
   @BelongsToMany(() => Role, () => UserRoleAssignment)
   roles: Role[];
   

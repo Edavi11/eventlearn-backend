@@ -1,0 +1,6 @@
+export { CreateAuthDto } from "./create-auth.dto"
+export { ForgotPasswordDto } from "./forgot-pass.dto"
+export { LoginUserDto } from "./login-auth.dto"
+export { ResetPasswordDto } from "./reset-password"
+export { VerifyOtpDto } from "./verify-otp.dto"
+export { VerifyResetOtpDto } from "./verify-reset-otp"

@@ -13,13 +13,18 @@ export class CreateAuthDto {
 
     @IsNotEmpty()
     @IsString()
+    @MinLength(8, { message: 'Confirm Password must be at least 8 characters long' })
+    confirm_password: string;
+
+    @IsNotEmpty()
+    @IsString()
     first_name: string;
 
     @IsNotEmpty()
     @IsString()
     last_name: string;
 
-    @IsEnum(UserRole, { message: 'Invalid role provided' }) // <--- ¡NUEVO CAMPO!
+    @IsEnum(UserRole, { message: 'Invalid role provided' })
     @IsNotEmpty()
-    role: UserRole; // El rol que se enviará desde el frontend
+    role: UserRole;
 }

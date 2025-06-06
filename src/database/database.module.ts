@@ -4,8 +4,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from 'src/users/entities/user.model';
 import { Role } from 'src/roles/entities/role.model';
 import { UserRoleAssignment } from 'src/roles/entities/user_role.model';
+import { OtpCode } from 'src/otp/entities/otp_code.model';
 
-@Global() // Make the database connection available throughout the app
+@Global()
 @Module({
   imports: [
     SequelizeModule.forRootAsync({
@@ -20,10 +21,10 @@ import { UserRoleAssignment } from 'src/roles/entities/user_role.model';
           username: configService.get<string>('DB_USERNAME'),
           password: configService.get<string>('DB_PASSWORD'),
           database: configService.get<string>('DB_NAME'),
-          autoLoadModels: true, // Automatically loads models (optional, can be explicit)
+          autoLoadModels: true,
           synchronize: true,
-          logging: console.log, // Enable logging of SQL queries
-          models: [User, Role, UserRoleAssignment], // ✅ Aquí deben estar todos
+          logging: console.log,
+          models: [User, Role, UserRoleAssignment, OtpCode],
           // sync: isDev ? { force: true } : { force: false }, // Force sync in development mode
         }
 

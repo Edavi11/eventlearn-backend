@@ -1,33 +1,22 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-} from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Response } from 'express';
+import { Observable, tap } from 'rxjs';
 
 @Injectable()
-export class ApiResponseInterceptor implements NestInterceptor {
-
+export class ResponseStatusInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    
+
     const ctx = context.switchToHttp();
-    const response = ctx.getResponse<Response>();
+    const res = ctx.getResponse<Response>();
 
     return next.handle().pipe(
-      map((data) => {
-        // Si incluye un statusCode, lo usamos
-        const status = data?.statusCode ?? 200;
+      tap((data) => {
 
-        // Remueve statusCode del body si no quieres exponerlo
-        // if ('statusCode' in data) {
-        //   delete data.statusCode;
-        // }
+        if (data && typeof data === 'object' && 'statusCode' in data) {
+          res.status(data.statusCode);
+        }
 
-        return response.status(status).json(data);
-      }),
+      })
     );
   }
 }

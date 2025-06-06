@@ -14,6 +14,7 @@ interface ISendMail {
 
 @Injectable()
 export class EmailService {
+
   private transporter: Mail;
   private templatesPath: string;
   private readonly logger = new Logger(EmailService.name);
@@ -57,8 +58,6 @@ export class EmailService {
           return true;
       } catch(error) {
           this.logger.error("Error sending email:", error);
-          // Puedes lanzar una excepción específica si lo prefieres:
-          // throw new InternalServerErrorException('Failed to send email.');
           return false;
       }
   }
@@ -69,10 +68,8 @@ export class EmailService {
 
     let htmlMessage: string;
     try {
-        // Lee el contenido del archivo HTML de forma asíncrona
         const templateContent = await fs.readFile(templatePath, 'utf8');
 
-        // Reemplaza el placeholder con el código OTP real
         htmlMessage = templateContent.replace('{{OTP_CODE}}', otp);
 
     } catch (error) {
@@ -86,23 +83,25 @@ export class EmailService {
     }
   }
 
-  // async sendVerificationOtp(to: string, otp: string): Promise<void> {
-  //   const subject = 'EventLearn: Your OTP Verification Code';
-  //   const htmlMessage = `
-  //     <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-  //       <h2>EventLearn Account Verification</h2>
-  //       <p>Hello,</p>
-  //       <p>Thank you for registering with EventLearn. To complete your registration, please use the following One-Time Password (OTP):</p>
-  //       <p style="font-size: 24px; font-weight: bold; color: #007bff;">${otp}</p>
-  //       <p>This code is valid for 3 minutes.</p>
-  //       <p>If you did not request this, please ignore this email.</p>
-  //       <p>Best regards,<br>The EventLearn Team</p>
-  //     </div>
-  //   `;
 
-  //   const sent = await this.send({ to, subject, message: htmlMessage });
-  //   if (!sent) {
-  //       throw new InternalServerErrorException('Failed to send verification email. Please try again.');
-  //   }
-  // }
+  async sendPasswordResetOtp(to: string, otp: string): Promise<void> {
+    const subject = 'EventLearn: Password Reset OTP';
+    const templatePath = path.join(this.templatesPath, 'otp-reset-password.html');
+  
+    let htmlMessage: string;
+    try {
+      const templateContent = await fs.readFile(templatePath, 'utf8');
+      htmlMessage = templateContent.replace('{{OTP_CODE}}', otp);
+    } catch (error) {
+      this.logger.error(`Error reading password reset template at ${templatePath}:`, error.message);
+      throw new InternalServerErrorException('Failed to load password reset email template.');
+    }
+  
+    const sent = await this.send({ to, subject, message: htmlMessage });
+    if (!sent) {
+      throw new InternalServerErrorException('Failed to send password reset email. Please try again.');
+    }
+  }
+
+
 }

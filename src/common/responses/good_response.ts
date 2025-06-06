@@ -55,7 +55,25 @@ export class GoodResponse {
         ResponseModule.AUTH
     );
 
-    static SIGNIN_SUCCESS(accessToken: string): ApiResponse<any> {
+    static readonly RESET_PASSWORD_OTP_SENT = ResponseFactory.createSuccessResponse(
+        HttpStatus.OK,
+        'A reset password OTP has been sent to your email.',
+        ResponseModule.AUTH
+    );
+
+    static readonly OTP_VERIFIED_SUCCESS = ResponseFactory.createSuccessResponse(
+        HttpStatus.OK,
+        'Otp verification successful! reset your password.',
+        ResponseModule.AUTH
+    );
+
+    static readonly PASSWORD_RESET_SUCCESS = ResponseFactory.createSuccessResponse(
+        HttpStatus.OK,
+        'Password reset successful! You can now log in with your new password.',
+        ResponseModule.AUTH
+    );
+
+    static FUNC_SIGNIN_SUCCESS(accessToken: string): ApiResponse<any> {
         return ResponseFactory.createSuccessResponseWithData(
             HttpStatus.OK,
             'Login successful.',
@@ -64,7 +82,7 @@ export class GoodResponse {
         );
     }
 
-    static OTP_VERIFIED_SUCCESS(accessToken: string): ApiResponse<any> {
+    static FUNC_OTP_VERIFIED_SUCCESS(accessToken: string): ApiResponse<any> {
         return ResponseFactory.createSuccessResponseWithData(
             HttpStatus.OK,
             'Email verification successful!',

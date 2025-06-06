@@ -1,13 +1,14 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Res } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
+
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { LoginUserDto } from './dto/login-auth.dto';
-import { VerifyOtpDto } from './dto/verify-otp.dto';
+
+// DTOs
 import { ApiResponse } from 'src/common/responses/structure/api-response.dto';
-import { Response } from 'express';
+import { CreateAuthDto, LoginUserDto, VerifyOtpDto, ForgotPasswordDto , VerifyResetOtpDto , ResetPasswordDto} from './dto/dtos';
 
 @Controller('auth')
 export class AuthController {
+
   constructor(private readonly authService: AuthService) {}
   
   @Post('signup')
@@ -21,8 +22,22 @@ export class AuthController {
   }
   
   @Post('verify-otp')
-  @HttpCode(HttpStatus.OK) // Código de estado 200 para verificación exitosa
   async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto): Promise<ApiResponse<any>>  {
     return this.authService.verifyOtp(verifyOtpDto);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() forgotPassDto: ForgotPasswordDto): Promise<ApiResponse<any>>  {
+    return this.authService.forgotPassword(forgotPassDto);
+  }
+  
+  @Post('verify-reset-otp')
+  async verifyResetOtp(@Body() verifyResetOtpDto: VerifyResetOtpDto): Promise<ApiResponse<any>>  {
+    return this.authService.verifyResetOtp(verifyResetOtpDto);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<ApiResponse<any>>  {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 }

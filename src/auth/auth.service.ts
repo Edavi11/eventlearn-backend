@@ -5,27 +5,26 @@ import { JwtService } from '@nestjs/jwt';
 // NestJS
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
+// Enums
+import { Entities } from 'src/common/enums/entities';
+import { OtpPurpose } from 'src/common/enums/otp_purpose.enum';
+
+// Services
+import { OtpService } from 'src/otp/otp.service';
+
 // DTOs
-import { LoginUserDto } from './dto/login-auth.dto';
-import { CreateAuthDto } from './dto/create-auth.dto';
+import { CreateAuthDto, LoginUserDto, VerifyOtpDto, ForgotPasswordDto , VerifyResetOtpDto , ResetPasswordDto} from './dto/dtos';
 
 // Repositories
 import { UsersRepository } from 'src/users/repository/users.repository';
 import { RolesRepository } from 'src/roles/repository/roles.repository';
 import { UserRolesRepository } from 'src/roles/repository/user_roles.repository';
-import { OtpService } from 'src/otp/otp.service';
-import { OtpPurpose } from 'src/common/enums/otp_purpose.enum';
-import { VerifyOtpDto } from './dto/verify-otp.dto';
 
 // Responses
-import { GoodResponse } from 'src/common/responses/good_response';
-import { BadResponse } from 'src/common/responses/bad_response';
-import { ApiResponse } from 'src/common/responses/structure/api-response.dto';
+import { GoodResponse, BadResponse, ApiResponse } from 'src/common/responses/responses';
 
 // Exceptions
 import { ApiException } from './exceptions/api.exception';
-import { Entities } from 'src/common/enums/entities';
-
 
 @Injectable()
 export class AuthService {
@@ -57,6 +56,11 @@ export class AuthService {
         }
       }
 
+      if (createAuthDto.confirm_password !== password) {
+        this.logger.error(`Password confirmation does not match for email ${email}`);
+        throw new ApiException(BadResponse.PASSWORDS_DO_NOT_MATCH);
+      }
+
       const hashedPassword = await bcrypt.hash(password, 10);
 
       user = await this.usersRepository.create({
@@ -86,7 +90,7 @@ export class AuthService {
       if (error instanceof ApiException) {
         throw error; // Re-throw known API exceptions
       }
-      
+
       throw new BadRequestException(BadResponse.USER_CREATION_FAILED);
     }
 
@@ -126,7 +130,7 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload);
-    return GoodResponse.SIGNIN_SUCCESS(accessToken)
+    return GoodResponse.FUNC_SIGNIN_SUCCESS(accessToken)
   }
 
   async verifyOtp(verifyOtpDto: VerifyOtpDto): Promise<ApiResponse<any>> {
@@ -154,6 +158,55 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload);
-    return GoodResponse.OTP_VERIFIED_SUCCESS(accessToken);
+    return GoodResponse.FUNC_OTP_VERIFIED_SUCCESS(accessToken);
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto): Promise<ApiResponse> {
+    const user = await this.usersRepository.findByEmail(dto.email);
+    if (!user) {
+      throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.USER));
+    }
+
+    await this.otpService.sendResetPasswordOtp(user, OtpPurpose.PASSWORD_RESET);
+    return GoodResponse.RESET_PASSWORD_OTP_SENT;
+  }
+
+
+  async verifyResetOtp(dto: VerifyResetOtpDto): Promise<ApiResponse> {
+    const user = await this.usersRepository.findByEmail(dto.email);
+    if (!user) {
+      throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.USER));
+    }
+
+    if (user.is_verified === false) {
+      throw new ApiException(BadResponse.USER_NOT_VERIFY);
+    }
+
+    await this.usersRepository.update(user.id, { can_reset_password: true });
+
+    await this.otpService.verifyOtp(user.id, dto.otp_code, OtpPurpose.PASSWORD_RESET);
+    return GoodResponse.OTP_VERIFIED_SUCCESS;
+  }
+
+  async resetPassword(dto: ResetPasswordDto): Promise<ApiResponse> {
+    const { email, new_password, confirm_password } = dto;
+
+    const user = await this.usersRepository.findByEmail(email);
+    if (!user) {
+      throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.USER));
+    }
+
+    if (!user.can_reset_password) {
+      throw new ApiException(BadResponse.PASSWORD_RESET_UNAUTHORIZED);
+    }
+
+    if (new_password !== confirm_password) {
+      throw new ApiException(BadResponse.PASSWORDS_DO_NOT_MATCH);
+    }
+
+    user.password = await bcrypt.hash(new_password, 10);
+    await this.usersRepository.update(user.id, { password: user.password, can_reset_password: false });
+
+    return GoodResponse.PASSWORD_RESET_SUCCESS;
   }
 }

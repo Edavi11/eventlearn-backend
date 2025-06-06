@@ -99,4 +99,16 @@ export class BadResponse {
         'User creation failed. Please check the provided data.',
         ResponseModule.AUTH
     );
+
+    static readonly PASSWORDS_DO_NOT_MATCH = ResponseFactory.createErrorResponse(
+        HttpStatus.BAD_REQUEST,
+        'The provided passwords do not match.',
+        ResponseModule.AUTH
+    );
+    
+    static readonly PASSWORD_RESET_UNAUTHORIZED = ResponseFactory.createErrorResponse(
+        HttpStatus.BAD_REQUEST,
+        'You are not authorized to reset the password.',
+        ResponseModule.AUTH
+    );
 }

@@ -10,6 +10,8 @@ import { UserRole } from '../../common/enums/user.role'; // Tu enum de roles
 
 // Models
 import { User } from '../../users/entities/user.model'; // Importa el modelo User para el tipo de req.user
+import { ApiException } from '../exceptions/api.exception';
+import { BadResponse } from 'src/common/responses/bad_response';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -17,16 +19,17 @@ export class RolesGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
 
-    const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [ context.getHandler(),  context.getClass() ]);
+    const requiredRoles = this.reflector.get<UserRole[]>(ROLES_KEY, context.getHandler());
 
-    if (!requiredRoles) {
-      return true;
-    }
+    if (!requiredRoles) { return true }
+    if ( requiredRoles.length === 0 ) return true;
 
-    const { user } = context.switchToHttp().getRequest();
+    const req = context.switchToHttp().getRequest();
+    const user = req.user as User;
+
 
     if (!user || !(user instanceof User) || !user.roles || user.roles.length === 0) {
-        throw new ForbiddenException('You do not have the necessary roles to access this resource.');
+        throw new ApiException(BadResponse.TOKEN_NOT_PROVIDED_OR_NOT_ROLE_PERMITION);
     }
 
     const userRoles = user.roles.map(role => role.rol);
@@ -34,7 +37,7 @@ export class RolesGuard implements CanActivate {
     const hasRequiredRole = requiredRoles.some(requiredRole => userRoles.includes(requiredRole));
 
     if (!hasRequiredRole) {
-      throw new ForbiddenException('You do not have the necessary roles to access this resource.');
+      throw new ApiException(BadResponse.TOKEN_NOT_PROVIDED_OR_NOT_ROLE_PERMITION);
     }
 
     return true;

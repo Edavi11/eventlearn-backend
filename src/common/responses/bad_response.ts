@@ -6,6 +6,8 @@ import { ApiErrorResponse } from "./structure/api-response.dto";
 
 export class BadResponse {
 
+    // GENERAL MODULE BAD RESPONSES
+
     static readonly UNEXPECTED_ERROR = ResponseFactory.createErrorResponse(
         HttpStatus.INTERNAL_SERVER_ERROR,
         'An unexpected error has occurred.',
@@ -64,6 +66,9 @@ export class BadResponse {
         ResponseModule.GENERAL
     );
 
+
+    // AUTH MODULE BAD RESPONSES
+
     static readonly USER_ALREADY_EXISTS = ResponseFactory.createErrorResponse(
         HttpStatus.BAD_REQUEST,
         'The user already exists in the system.',
@@ -112,15 +117,23 @@ export class BadResponse {
         ResponseModule.AUTH
     );
 
+    static readonly TOKEN_NOT_PROVIDED_OR_NOT_ROLE_PERMITION = ResponseFactory.createErrorResponse(
+        HttpStatus.UNAUTHORIZED,
+        'The necessary token was not provided or the role has not permission',
+        ResponseModule.AUTH
+    );
+
+    // INTEREST MODULE BAD RESPONSES
+
     static readonly INTEREST_NOT_FOUND = ResponseFactory.createErrorResponse(
         HttpStatus.BAD_REQUEST,
         'The specified interest does not exist.',
-        ResponseModule.GENERAL
+        ResponseModule.INTEREST
     );
     
     static readonly INTEREST_ALREADY_EXISTS = ResponseFactory.createErrorResponse(
         HttpStatus.BAD_REQUEST,
         'The specified interest already exists.',
-        ResponseModule.GENERAL
+        ResponseModule.INTEREST
     );
 }

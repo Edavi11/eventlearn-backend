@@ -3,5 +3,6 @@ export enum ResponseModule {
     AUTH = 'AUTH',
     USERS = 'USERS',
     VALIDATION = 'VALIDATION',
+    INTEREST='INTEREST',
 }
 

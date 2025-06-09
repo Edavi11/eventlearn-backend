@@ -20,6 +20,7 @@ import { OtpModule } from 'src/otp/otp.module';
     UsersModule,
     RolesModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
+
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -28,6 +29,7 @@ import { OtpModule } from 'src/otp/otp.module';
       }),
       inject: [ConfigService],
     }),
+    
     OtpModule,
     ConfigModule
   ]

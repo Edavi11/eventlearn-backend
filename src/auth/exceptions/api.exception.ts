@@ -1,4 +1,3 @@
-// src/common/exceptions/api.exception.ts (o donde prefieras)
 import { HttpException } from '@nestjs/common';
 import { ApiErrorResponse } from 'src/common/responses/structure/api-response.dto';
 

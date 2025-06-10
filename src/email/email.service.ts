@@ -1,11 +1,9 @@
-// src/email/email.service.ts
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer'; 
-import * as path from 'path'; // <--- Importa el módulo 'path'
-import * as fs from 'fs/promises'; // <--- Importa 'fs/promises' para operaciones asíncronas
-
+import * as path from 'path';
+import * as fs from 'fs/promises';
 interface ISendMail {
     to: string;
     subject: string;
@@ -43,7 +41,6 @@ export class EmailService {
     });
   }
 
-  // Tu método send generalizado
   async send({ to, subject, message }: ISendMail): Promise<boolean> {
       const mailOptions = {
         from: this.configService.get<string>('GOOGLE_MAIL_APP_EMAIL'), 

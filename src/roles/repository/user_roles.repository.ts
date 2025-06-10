@@ -21,7 +21,6 @@ export class UserRolesRepository implements IUserRoleAssignmentRepository {
     }
 
     findByUserId(id: number): Promise<UserRoleAssignment | null> {
-        // return this.roleModel.findOne({ where: { userId: id } });
         throw new Error('Method not implemented.');
     }
 

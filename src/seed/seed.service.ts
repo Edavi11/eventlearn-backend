@@ -14,7 +14,7 @@ export class SeedService {
     try {
       // await this.seedRoles();
       // await this.seedVerifiedUser();
-      // await this.seedInterests();
+      await this.seedInterests();
       return { message: 'Seed Executed' };
     } catch (error) {
       console.error('❌ Error during seeding:', error);

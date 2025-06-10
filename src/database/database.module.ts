@@ -27,15 +27,15 @@ import { StudentInterest } from 'src/interest/entities/student_interests.entity'
           autoLoadModels: true,
           synchronize: true,
           logging: console.log,
-          models: [User, Role, UserRoleAssignment, OtpCode, StudentProfile, Interest, StudentInterest], // Add your models here
-          // sync: isDev ? { force: true } : { force: false }, // Force sync in development mode
+          models: [User, Role, UserRoleAssignment, OtpCode, StudentProfile, Interest, StudentInterest],
+          // sync: isDev ? { force: true } : { force: false },
         }
 
       },
       inject: [ConfigService],
     }),
   ],
-  exports: [SequelizeModule], // Export SequelizeModule so other modules can use it
+  exports: [SequelizeModule],
 })
 export class DatabaseModule {}
 

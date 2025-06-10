@@ -8,7 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
 import { RolesModule } from 'src/roles/roles.module';
-import { UsersModule } from '../users/users.module'; // Necesitamos acceder al User model/service
+import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { OtpModule } from 'src/otp/otp.module';
 

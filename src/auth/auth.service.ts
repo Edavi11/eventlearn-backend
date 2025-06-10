@@ -13,7 +13,8 @@ import { OtpPurpose } from 'src/common/enums/otp_purpose.enum';
 import { OtpService } from 'src/otp/otp.service';
 
 // DTOs
-import { CreateAuthDto, LoginUserDto, VerifyOtpDto, ForgotPasswordDto , VerifyResetOtpDto , ResetPasswordDto} from './dto/dtos';
+import { CreateAuthDto, LoginUserDto, VerifyOtpDto, ForgotPasswordDto, VerifyResetOtpDto, ResetPasswordDto } from './dto/dtos';
+import { SelectRoleDto } from './dto/select-role.dto';
 
 // Repositories
 import { UsersRepository } from 'src/users/repository/users.repository';
@@ -26,8 +27,12 @@ import { GoodResponse, BadResponse, ApiResponse } from 'src/common/responses/res
 // Exceptions
 import { ApiException } from './exceptions/api.exception';
 
+// Models
+import { User } from 'src/users/entities/user.model';
+
 @Injectable()
 export class AuthService {
+
 
   private readonly logger = new Logger(AuthService.name);
 
@@ -86,9 +91,10 @@ export class AuthService {
 
       return GoodResponse.USER_CREATED_OTP_SENT;
     } catch (error) {
+
       this.logger.error(`Error during user registration: ${error.message}`, error.stack);
       if (error instanceof ApiException) {
-        throw error; // Re-throw known API exceptions
+        throw error;
       }
 
       throw new BadRequestException(BadResponse.USER_CREATION_FAILED);
@@ -123,15 +129,43 @@ export class AuthService {
       throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.USER));
     }
 
+    const userRoles = userWithRoles.roles.map(role => role.rol);
+    
+    // Si el usuario solo tiene un rol, lo asignamos automáticamente
+    const currentRole = userRoles.length === 1 ? userRoles[0] : "";
+
     const payload = {
       userCode: userWithRoles.code,
       email: userWithRoles.email,
-      roles: userWithRoles.roles.map(role => role.rol),
+      roles: userRoles,
+      currentRole: currentRole
     };
 
     const accessToken = this.jwtService.sign(payload);
-    return GoodResponse.FUNC_SIGNIN_SUCCESS(accessToken)
+    return GoodResponse.FUNC_SIGNIN_SUCCESS(accessToken);
   }
+
+  async selectRole(selectRoleDto: SelectRoleDto, user: User): Promise<ApiResponse<any>> {
+    const { role } = selectRoleDto;
+    
+    // Verificar que el usuario tenga el rol seleccionado
+    const userRoles = user.roles.map(userRole => userRole.rol);
+    if (!userRoles.includes(role)) {
+      throw new ApiException(BadResponse.TOKEN_NOT_PROVIDED_OR_NOT_ROLE_PERMITION);
+    }
+
+    // Generar nuevo token con el rol seleccionado
+    const payload = {
+      userCode: user.code,
+      email: user.email,
+      roles: userRoles,
+      currentRole: role
+    };
+
+    const accessToken = this.jwtService.sign(payload);
+    return GoodResponse.FUNC_SIGNIN_SUCCESS(accessToken);
+  }
+
 
   async verifyOtp(verifyOtpDto: VerifyOtpDto): Promise<ApiResponse<any>> {
     const { email, otp_code } = verifyOtpDto;

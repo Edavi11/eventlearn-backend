@@ -1,4 +1,3 @@
-// src/profile/entities/student-profile.model.ts
 import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement, ForeignKey, BelongsTo, AllowNull, Default, BelongsToMany } from 'sequelize-typescript';
 
 import { User } from '../../users/entities/user.model';

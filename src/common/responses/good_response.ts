@@ -4,13 +4,14 @@ import { ApiResponse } from "./structure/api-response.dto";
 import { ResponseFactory } from "./structure/response.factory";
 
 export class GoodResponse {
+    
 
+    // GENERAL RESPONSES FOR ANY MODULE
     static readonly SUCCESSFUL_OPERATION = ResponseFactory.createSuccessResponse(
         HttpStatus.OK,
         'Operation successful.',
         ResponseModule.GENERAL
     );
-
 
     static readonly SUCCESSFUL_CONNECTION = ResponseFactory.createSuccessResponse(
         HttpStatus.OK,
@@ -18,27 +19,34 @@ export class GoodResponse {
         ResponseModule.GENERAL
     );
 
-    static readonly SUCCESSFUL_GET = ResponseFactory.createSuccessResponse(
-        HttpStatus.OK,
-        'Data successfully obtained.',
-        ResponseModule.GENERAL
-    );
+    static SUCCESSFUL_GET(data: any, module: ResponseModule): ApiResponse<any> {
+        return ResponseFactory.createSuccessResponseWithData(
+            HttpStatus.OK,
+            'Data successfully obtained.',
+            module,
+            data ,
+        );
+    }
+
+    static SUCCESSFUL_DELETION(module: ResponseModule): ApiResponse<any> {
+        return ResponseFactory.createSuccessResponse(
+            HttpStatus.OK,
+            'Data successfully deleted.',
+            module,
+        );
+    }
+
+    static SUCCESSFUL_UPDATE(module: ResponseModule): ApiResponse<any> {
+        return ResponseFactory.createSuccessResponse(
+            HttpStatus.OK,
+            'Data successfully updated.',
+            module,
+        );
+    }
 
     static readonly SUCCESSFUL_CREATION = ResponseFactory.createSuccessResponse(
         HttpStatus.CREATED,
         'Data successfully created.',
-        ResponseModule.GENERAL
-    );
-
-    static readonly SUCCESSFUL_UPDATE = ResponseFactory.createSuccessResponse(
-        HttpStatus.OK,
-        'Data successfully updated.',
-        ResponseModule.GENERAL
-    );
-
-    static readonly SUCCESSFUL_DELETION = ResponseFactory.createSuccessResponse(
-        HttpStatus.OK,
-        'Data successfully deleted.',
         ResponseModule.GENERAL
     );
 

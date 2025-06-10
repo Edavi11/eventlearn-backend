@@ -1,4 +1,3 @@
-// Imports
 import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement, Default, BelongsToMany, Unique, AllowNull } from 'sequelize-typescript';
 
 import { Role } from 'src/roles/entities/role.model';

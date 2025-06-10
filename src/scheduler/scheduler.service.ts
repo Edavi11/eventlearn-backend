@@ -1,8 +1,6 @@
-// src/scheduler/scheduler.service.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { OtpCodesRepository } from 'src/otp/repository/otp_codes.repository';
-import { Op } from 'sequelize';
 import { OtpStatus } from 'src/common/enums/otp_status.enum';
 
 @Injectable()

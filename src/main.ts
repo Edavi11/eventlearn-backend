@@ -3,9 +3,11 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ResponseStatusInterceptor } from './common/interceptors/api-response/api-response.interceptor';
 import { ApiExceptionFilter } from './common/filters/api_exception.filter';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.enableCors({
     origin: '*', 
@@ -23,6 +25,11 @@ async function bootstrap() {
 
   app.useGlobalFilters(new ApiExceptionFilter());
 
-  await app.listen(3000);
+  // Servir archivos estáticos
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
+
+  await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

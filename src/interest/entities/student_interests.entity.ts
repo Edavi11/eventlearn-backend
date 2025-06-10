@@ -1,4 +1,3 @@
-// src/interests/entities/student-interest.model.ts
 import { Table, Column, Model, DataType, PrimaryKey, ForeignKey, AutoIncrement } from 'sequelize-typescript';
 
 import { Interest } from './interest.entity';
@@ -17,7 +16,7 @@ export class StudentInterest extends Model<StudentInterest> {
     student_profile_id: number;
 
     @ForeignKey(() => Interest)
-    @Column({ type: DataType.UUID, allowNull: false }) // 
+    @Column({ type: DataType.UUID, allowNull: false })
     interest_id: string;
 
 }

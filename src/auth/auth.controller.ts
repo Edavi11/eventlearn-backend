@@ -1,10 +1,12 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Req } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 
 // DTOs
 import { ApiResponse } from 'src/common/responses/structure/api-response.dto';
 import { CreateAuthDto, LoginUserDto, VerifyOtpDto, ForgotPasswordDto , VerifyResetOtpDto , ResetPasswordDto} from './dto/dtos';
+import { Auth } from './decorators/auth.decorator';
+import { SelectRoleDto } from './dto/select-role.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -19,6 +21,12 @@ export class AuthController {
   @Post('signin')
   async signIn(@Body() loginUserDto: LoginUserDto): Promise<ApiResponse<any>> {
     return this.authService.signIn(loginUserDto);
+  }
+
+  @Post('select-role')
+  @Auth()
+  async selectRole(@Body() selectRoleDto: SelectRoleDto, @Req() req: any): Promise<ApiResponse<any>> {
+    return this.authService.selectRole(selectRoleDto, req.user);
   }
   
   @Post('verify-otp')

@@ -1,4 +1,3 @@
-// src/otp/repository/otp-codes.repository.ts
 import { Op } from 'sequelize';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
@@ -70,7 +69,7 @@ export class OtpCodesRepository implements IOtpCodesRepository {
             {
                 where: {
                     ...criteria,
-                    expires_at: { [Op.lt]: new Date() }, // solo los expirados
+                    expires_at: { [Op.lt]: new Date() },
                 },
             },
         );

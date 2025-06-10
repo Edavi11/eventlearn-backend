@@ -8,7 +8,7 @@ import { OtpCode } from 'src/otp/entities/otp_code.model';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    SequelizeModule.forFeature([OtpCode]), // Para que pueda inyectar el modelo en el repo
+    SequelizeModule.forFeature([OtpCode]),
   ],
   providers: [SchedulerService, OtpCodesRepository],
 })

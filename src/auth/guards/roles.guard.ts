@@ -1,15 +1,15 @@
 import { Observable } from 'rxjs';
 import { Reflector } from '@nestjs/core';
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 
 // Guards
 import { ROLES_KEY } from 'src/common/decorators/roles.decorator';
 
 // Enums
-import { UserRole } from '../../common/enums/user.role'; // Tu enum de roles
+import { UserRole } from '../../common/enums/user.role';
 
 // Models
-import { User } from '../../users/entities/user.model'; // Importa el modelo User para el tipo de req.user
+import { User } from '../../users/entities/user.model';
 import { ApiException } from '../exceptions/api.exception';
 import { BadResponse } from 'src/common/responses/bad_response';
 

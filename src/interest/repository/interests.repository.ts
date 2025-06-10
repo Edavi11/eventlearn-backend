@@ -1,4 +1,3 @@
-// src/interests/interests.repository.ts
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Interest } from '../entities/interest.entity';
@@ -22,16 +21,22 @@ export class InterestsRepository {
     return this.interestModel.findByPk(id);
   }
 
-  async update(id: number, data: UpdateInterestDto): Promise<[number, Interest[]]> { 
+  async findByCode(code: string): Promise<Interest | null> {
+    return this.interestModel.findOne({
+      where: { code }
+    });
+  }
+
+  async update(code: string, data: UpdateInterestDto): Promise<[number, Interest[]]> { 
     return this.interestModel.update(data, {
-      where: { id },
+      where: { code },
       returning: true,
     });
   }
 
-  async delete(id: number): Promise<number> {
+  async delete(code: string): Promise<number> {
     return this.interestModel.destroy({
-      where: { id },
+      where: { code: code },
     });
   }
 

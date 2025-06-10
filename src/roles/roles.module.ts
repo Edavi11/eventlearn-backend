@@ -1,4 +1,3 @@
-// src/roles/roles.module.ts
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 

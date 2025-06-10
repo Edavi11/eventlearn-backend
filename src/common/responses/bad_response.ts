@@ -7,12 +7,14 @@ import { ApiErrorResponse } from "./structure/api-response.dto";
 export class BadResponse {
 
     // GENERAL MODULE BAD RESPONSES
+    static UNEXPECTED_ERROR(module: ResponseModule): ApiErrorResponse<any> {
+        return ResponseFactory.createErrorResponse(
+            HttpStatus.NOT_FOUND,
+            `An unexpected error has occurred.`,
+            module,
+        );
+    }
 
-    static readonly UNEXPECTED_ERROR = ResponseFactory.createErrorResponse(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        'An unexpected error has occurred.',
-        ResponseModule.GENERAL
-    );
 
     static readonly ACCESS_MISSING_DATA = ResponseFactory.createErrorResponse(
         HttpStatus.BAD_REQUEST,

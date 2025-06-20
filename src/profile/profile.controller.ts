@@ -7,6 +7,8 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { UserRole } from 'src/common/enums/user.role';
 import { ApiResponse } from 'src/common/responses/responses';
 import { JwtPayload } from 'src/auth/interface/jwt.paylod.interface';
+import { DynamicUploadInterceptor } from 'src/uploads/interceptors/dynamic-upload.interceptor';
+import { UploadCategory } from 'src/uploads/enums/upload-category.enum';
 
 @Controller('profile')
 export class ProfileController {
@@ -14,22 +16,24 @@ export class ProfileController {
 
   @Post()
   @Auth(UserRole.STUDENT, UserRole.INSTRUCTOR)
-  @UseInterceptors(FileInterceptor('profile_picture'))
+  // @UseInterceptors(FileInterceptor('profile_picture'))
+  @DynamicUploadInterceptor('profile_picture', UploadCategory.PROFILE)
   async createProfile(
     @Body() createProfileDto: CreateStudentProfileDto | CreateInstructorProfileDto, @UploadedFile() file: Express.Multer.File, @Req() req: any): Promise<ApiResponse<any>> {
-    const { userCode, currentRole } = req.user as JwtPayload;
+
+    const { code, currentRole } = req.user;
     
     if (file) {
-      createProfileDto.profile_picture_url = `/uploads/images/${file.filename}`;
+      createProfileDto.profile_picture_url = `/uploads/${code}/${UploadCategory.PROFILE}/${file.filename}`;
     }
     
-    return this.profileService.createProfile(userCode, currentRole as UserRole, createProfileDto);
+    return this.profileService.createProfile(code, currentRole as UserRole, createProfileDto);
   }
 
   @Get()
   @Auth(UserRole.STUDENT, UserRole.INSTRUCTOR)
   async getProfile(@Req() req: any): Promise<ApiResponse<any>> {
-    const { userCode, currentRole } = req.user as JwtPayload;
-    return this.profileService.getProfile(userCode, currentRole as UserRole);
+    const { code, currentRole } = req.user;
+    return this.profileService.getProfile(code, currentRole as UserRole);
   }
 }

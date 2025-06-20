@@ -9,7 +9,7 @@ export class BadResponse {
     // GENERAL MODULE BAD RESPONSES
     static UNEXPECTED_ERROR(module: ResponseModule): ApiErrorResponse<any> {
         return ResponseFactory.createErrorResponse(
-            HttpStatus.NOT_FOUND,
+            HttpStatus.INTERNAL_SERVER_ERROR,
             `An unexpected error has occurred.`,
             module,
         );

@@ -8,15 +8,19 @@ import { Interest } from 'src/interest/entities/interest.entity';
 import { StudentInterest } from 'src/interest/entities/student_interests.entity';
 import { UploadsModule } from 'src/uploads/uploads.module';
 import { UsersModule } from 'src/users/users.module';
+import { InterestModule } from 'src/interest/interests.module';
+import { InstructorProfileRepository } from './repository/instructor-profile.repository';
+import { StudentProfileRepository } from './repository/student-profile.repository';
 
 @Module({
   imports: [
     SequelizeModule.forFeature([StudentProfile, InstructorProfile, Interest, StudentInterest]),
     UploadsModule,
     UsersModule,
+    InterestModule,
   ],
   controllers: [ProfileController],
-  providers: [ProfileService],
+  providers: [ProfileService, InstructorProfileRepository, StudentProfileRepository],
   exports: [ProfileService],
 })
 export class ProfileModule {}

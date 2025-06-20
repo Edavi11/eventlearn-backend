@@ -17,5 +17,5 @@ export class CreateStudentProfileDto {
 
     @IsArray()
     @IsInt({ each: true })
-    interests: number[];
+    interests: string[];
 }

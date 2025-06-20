@@ -25,13 +25,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(payload: JwtPayload): Promise<User> {
+  async validate(payload: JwtPayload): Promise<User & { currentRole: string }> {
     const user = await this.usersRepository.findByCode(payload.userCode); 
 
     if (!user || user.code !== payload.userCode || !user.is_active) {
       throw new UnauthorizedException('Token validation failed, user not found, or user is inactive');
     }
 
-    return user;
+    return Object.assign(user, { currentRole: payload.currentRole });
   }
 }

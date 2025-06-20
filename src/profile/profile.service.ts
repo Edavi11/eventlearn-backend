@@ -12,66 +12,112 @@ import { ApiException } from 'src/auth/exceptions/api.exception';
 import { Entities } from 'src/common/enums/entities';
 import { ResponseModule } from 'src/common/enums/response_module.enum';
 import { UsersRepository } from 'src/users/repository/users.repository';
+import { InterestsRepository } from 'src/interest/repository/interests.repository';
+import { StudentProfileRepository } from './repository/student-profile.repository';
+import { InstructorProfileRepository } from './repository/instructor-profile.repository';
 
 @Injectable()
 export class ProfileService {
   private readonly logger = new Logger(ProfileService.name);
 
   constructor(
-    @InjectModel(StudentProfile)
-    private studentProfileModel: typeof StudentProfile,
-    @InjectModel(InstructorProfile)
-    private instructorProfileModel: typeof InstructorProfile,
     private readonly usersRepository: UsersRepository,
-  ) {}
+    private readonly interestsRepository: InterestsRepository,
+    private readonly studentProfileRepository: StudentProfileRepository,
+    private readonly instructorProfileRepository: InstructorProfileRepository,
 
-  async createProfile(userCode: string, currentRole: UserRole, createProfileDto: CreateStudentProfileDto | CreateInstructorProfileDto): Promise<ApiResponse<any>> {
+  ) { }
+
+  async createProfile(userCode: string, currentRole: UserRole, createProfileDto: CreateStudentProfileDto | CreateInstructorProfileDto,): Promise<ApiResponse<any>> {
     try {
       const user = await this.usersRepository.findByCode(userCode);
-      if (!user) {
-        throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.USER));
-      }
 
-      // Verificar si el usuario ya tiene un perfil
-      const existingStudentProfile = await this.studentProfileModel.findOne({ where: { user_id: user.id } });
-      const existingInstructorProfile = await this.instructorProfileModel.findOne({ where: { user_id: user.id } });
+      if (!user) throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.USER));
 
-      if (existingStudentProfile || existingInstructorProfile) {
-        throw new ApiException(BadResponse.UNIQUE_DATA_IN_USE);
-      }
+      await this.ensureProfileNotExists(user.id, currentRole);
 
       switch (currentRole) {
-        case UserRole.STUDENT: {
-          const { interests, ...profileData } = createProfileDto as CreateStudentProfileDto;
-          const studentProfile = await this.studentProfileModel.create({ 
-            user_id: user.id, 
-            ...profileData 
-          });
-
-          if (interests && interests.length > 0) {
-            await studentProfile.$set('interests', interests);
-          }
-
-          return GoodResponse.SUCCESSFUL_CREATION;
-        }
-        case UserRole.INSTRUCTOR: {
-          const instructorProfile = await this.instructorProfileModel.create({
-            user_id: user.id,
-            ...createProfileDto as CreateInstructorProfileDto,
-          });
-
-          return GoodResponse.SUCCESSFUL_CREATION;
-        }
+        case UserRole.STUDENT:
+          return this.createStudentProfile(user.id, createProfileDto as CreateStudentProfileDto);
+        case UserRole.INSTRUCTOR:
+          return this.createInstructorProfile(user.id, createProfileDto as CreateInstructorProfileDto);
         default:
           throw new ApiException(BadResponse.UNAUTHORIZED_ACCESS);
       }
     } catch (error) {
       this.logger.error(`Error creating profile: ${error.message}`, error.stack);
-      if (error instanceof ApiException) {
-        throw error;
-      }
-      throw new ApiException(BadResponse.ENTITY_NOT_FOUND);
+      if (error instanceof ApiException) throw error;
+      throw new ApiException(BadResponse.UNEXPECTED_ERROR(ResponseModule.PROFILE));
     }
+  }
+
+  private async ensureProfileNotExists(userId: number, role: UserRole): Promise<void> {
+    const exists =
+      role === UserRole.STUDENT
+        ? await this.studentProfileRepository.existsByUserId(userId)
+        : await this.instructorProfileRepository.existsByUserId(userId);
+
+    if (exists) throw new ApiException(BadResponse.UNIQUE_DATA_IN_USE);
+  }
+
+
+  private async createStudentProfile(userId: number, dto: CreateStudentProfileDto): Promise<ApiResponse<any>> {
+    const { interests, profile_picture_url, ...profileData } = dto;
+
+    const interestIds = interests?.length
+      ? (
+        await this.interestsRepository.findAllByCodes(interests)
+      ).map((i) => i.id)
+      : [];
+
+    const fullProfilePictureUrl = profile_picture_url
+      ? this.buildPublicUrl(profile_picture_url)
+      : null;
+
+    const studentProfile = await this.studentProfileRepository.create({
+      user_id: userId,
+      profile_picture_url: fullProfilePictureUrl,
+      ...profileData,
+    });
+
+    if (interestIds.length > 0) {
+      await this.studentProfileRepository.setInterests(studentProfile, interestIds);
+    }
+
+    return GoodResponse.SUCCESSFUL_CREATION;
+  }
+
+  private async createInstructorProfile(userId: number, dto: CreateInstructorProfileDto): Promise<ApiResponse<any>> {
+    const { profile_picture_url, ...profileData } = dto;
+
+    const fullProfilePictureUrl = profile_picture_url
+      ? this.buildPublicUrl(profile_picture_url)
+      : null;
+
+    await this.instructorProfileRepository.create({
+      user_id: userId,
+      profile_picture_url: fullProfilePictureUrl,
+      ...profileData,
+    });
+
+    return GoodResponse.SUCCESSFUL_CREATION;
+  }
+
+  private buildPublicUrl(relativePath: string): string {
+    const env = process.env.NODE_ENV || 'dev';
+
+    const baseUrls = {
+      dev: 'http://localhost:3000',
+      sta: process.env.STAGING_URL || 'https://staging.eventlearn.com',
+      prod: process.env.PROD_URL || 'https://eventlearn.com',
+    };
+
+    const baseUrl = baseUrls[env] || baseUrls.dev;
+
+    // Asegura que relativePath comience con '/'
+    const sanitizedPath = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
+
+    return `${baseUrl}${sanitizedPath}`;
   }
 
   async getProfile(userCode: string, currentRole: UserRole): Promise<ApiResponse<any>> {
@@ -83,16 +129,11 @@ export class ProfileService {
 
       switch (currentRole) {
         case UserRole.STUDENT: {
-          const profile = await this.studentProfileModel.findOne({
-            where: { user_id: user.id },
-            include: ['interests']
-          });
+          const profile = await this.studentProfileRepository.findByUserId(user.id);
           return GoodResponse.SUCCESSFUL_GET(profile, ResponseModule.PROFILE);
         }
         case UserRole.INSTRUCTOR: {
-          const profile = await this.instructorProfileModel.findOne({
-            where: { user_id: user.id }
-          });
+          const profile = await this.instructorProfileRepository.findByUserId(user.id);
           return GoodResponse.SUCCESSFUL_GET(profile, ResponseModule.PROFILE);
         }
         default:
@@ -103,7 +144,7 @@ export class ProfileService {
       if (error instanceof ApiException) {
         throw error;
       }
-      throw new ApiException(BadResponse.ENTITY_NOT_FOUND);
+      throw new ApiException(BadResponse.UNEXPECTED_ERROR(ResponseModule.PROFILE));
     }
   }
 }

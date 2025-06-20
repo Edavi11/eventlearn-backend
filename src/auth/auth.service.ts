@@ -29,6 +29,7 @@ import { ApiException } from './exceptions/api.exception';
 
 // Models
 import { User } from 'src/users/entities/user.model';
+import { ResponseModule } from 'src/common/enums/response_module.enum';
 
 @Injectable()
 export class AuthService {
@@ -129,10 +130,14 @@ export class AuthService {
       throw new ApiException(BadResponse.FUNC_ENTITY_NOT_FOUND(Entities.USER));
     }
 
+    if (!userWithRoles.roles || userWithRoles.roles.length === 0) {
+      throw new ApiException(BadResponse.TOKEN_NOT_PROVIDED_OR_NOT_ROLE_PERMITION);
+    }
+
     const userRoles = userWithRoles.roles.map(role => role.rol);
-    
+
     // Si el usuario solo tiene un rol, lo asignamos automáticamente
-    const currentRole = userRoles.length === 1 ? userRoles[0] : "";
+    const currentRole = userRoles.length === 1 ? userRoles[0] : null;
 
     const payload = {
       userCode: userWithRoles.code,
@@ -146,24 +151,37 @@ export class AuthService {
   }
 
   async selectRole(selectRoleDto: SelectRoleDto, user: User): Promise<ApiResponse<any>> {
-    const { role } = selectRoleDto;
-    
-    // Verificar que el usuario tenga el rol seleccionado
-    const userRoles = user.roles.map(userRole => userRole.rol);
-    if (!userRoles.includes(role)) {
-      throw new ApiException(BadResponse.TOKEN_NOT_PROVIDED_OR_NOT_ROLE_PERMITION);
+
+    try {
+      const { role } = selectRoleDto;
+
+      if (!user.roles || user.roles.length === 0) {
+        throw new ApiException(BadResponse.TOKEN_NOT_PROVIDED_OR_NOT_ROLE_PERMITION);
+      }
+
+      // Verificar que el usuario tenga el rol seleccionado
+      const userRoles = user.roles.map(userRole => userRole.rol);
+      if (!userRoles.includes(role)) {
+        throw new ApiException(BadResponse.TOKEN_NOT_PROVIDED_OR_NOT_ROLE_PERMITION);
+      }
+
+      // Generar nuevo token con el rol seleccionado
+      const payload = {
+        userCode: user.code,
+        email: user.email,
+        roles: userRoles,
+        currentRole: role
+      };
+
+      const accessToken = this.jwtService.sign(payload);
+      return GoodResponse.FUNC_SIGNIN_SUCCESS(accessToken);
+    } catch (error) {
+      this.logger.error(`Error selecting role: ${error.message}`, error.stack);
+      if (error instanceof ApiException) {
+        throw error;
+      }
+      throw new ApiException(BadResponse.UNEXPECTED_ERROR(ResponseModule.AUTH));
     }
-
-    // Generar nuevo token con el rol seleccionado
-    const payload = {
-      userCode: user.code,
-      email: user.email,
-      roles: userRoles,
-      currentRole: role
-    };
-
-    const accessToken = this.jwtService.sign(payload);
-    return GoodResponse.FUNC_SIGNIN_SUCCESS(accessToken);
   }
 
 

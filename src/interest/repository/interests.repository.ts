@@ -7,7 +7,7 @@ import { UpdateInterestDto } from '../dto/update-interest.dto';
 @Injectable()
 export class InterestsRepository {
 
-  constructor( @InjectModel(Interest) private readonly interestModel: typeof Interest ) {}
+  constructor(@InjectModel(Interest) private readonly interestModel: typeof Interest) { }
 
   async create(data: CreateInterestDto): Promise<Interest> {
     return this.interestModel.create(data);
@@ -27,7 +27,15 @@ export class InterestsRepository {
     });
   }
 
-  async update(code: string, data: UpdateInterestDto): Promise<[number, Interest[]]> { 
+  async findAllByCodes(codes: string[]): Promise<Interest[]> {
+    return this.interestModel.findAll({
+      where: {
+        code: codes,
+      },
+    });
+  }
+  
+  async update(code: string, data: UpdateInterestDto): Promise<[number, Interest[]]> {
     return this.interestModel.update(data, {
       where: { code },
       returning: true,

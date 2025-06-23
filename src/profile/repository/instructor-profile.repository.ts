@@ -16,6 +16,9 @@ export class InstructorProfileRepository {
   async findByUserId(userId: number): Promise<InstructorProfile | null> {
     return this.instructorProfileModel.findOne({
       where: { user_id: userId },
+      include: [
+        { association: 'user', attributes: ['code', 'email', 'name'] }
+      ]
     });
   }
 
@@ -24,6 +27,10 @@ export class InstructorProfileRepository {
       where: { user_id: userId },
     });
     return !!profile;
+  }
+
+  async update(profile: InstructorProfile, data: Partial<InstructorProfile>): Promise<InstructorProfile> {
+    return await profile.update(data);
   }
 
 

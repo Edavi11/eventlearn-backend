@@ -16,7 +16,10 @@ export class StudentProfileRepository {
   async findByUserId(userId: number): Promise<StudentProfile | null> {
     return this.studentProfileModel.findOne({
       where: { user_id: userId },
-      include: ['interests'],
+      include: [
+        { association: 'interests' },
+        { association: 'user', attributes: ['code', 'email', 'name'] }
+      ]
     });
   }
 
@@ -29,6 +32,10 @@ export class StudentProfileRepository {
       where: { user_id: userId },
     });
     return !!profile;
+  }
+
+  async update(profile: StudentProfile, data: Partial<StudentProfile>): Promise<StudentProfile> {
+    return await profile.update(data);
   }
 
 }

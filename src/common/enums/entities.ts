@@ -3,4 +3,6 @@ export const enum Entities {
     ROLE = 'Role',
     USER_ROLE = 'UserRole',
     OTP = 'Otp',
+    STUDENT_PROFILE = 'StudentProfile',
+    INSTRUCTOR_PROFILE = 'InstructorProfile',
 }
